@@ -1,0 +1,38 @@
+fancybox: true
+duoshuo: flysnow
+disqus: ## Your disqus_shortname, e.g. haomwei
+google_search: true
+baidu_search: ## Use Baidu search, true/false
+swiftype: ## Your swiftype_key, e.g. m7b11ZrsT8Me7gzApciT
+tinysou: ## Your tinysou_key, e.g. 4ac092ad8d749fdc6293
+google_analytics: UA-44570956-1
+baidu_analytics: ## Your Baidu Analytics tracking id, e.g. 8006843039519956000
+
+menu:
+  - page: home
+    directory: .
+    icon: icon-home
+  - page: 新书
+    directory: books/
+    icon: icon-history
+  - page: archive
+    directory: archives/
+    icon: icon-archive
+  - page: about
+    directory: about/
+    icon: icon-about
+  - page: rss
+    directory: atom.xml
+    icon: icon-rss
+
+widgets: ## Six widgets in sidebar provided: search, category, tag, recent_posts, rencent_comments and links.
+  - search
+  - recent_posts
+  - recent_comments
+  - category
+  - tag
+  - links
+
+links:
+  - title: Android Gradle权威指南
+    url: http://yuedu.baidu.com/ebook/14a722970740be1e640e9a3e
