@@ -1,0 +1,256 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>编写高效的Android代码 | 飞雪无情的博客</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"><link rel="stylesheet" type="text/css" href="/css/pure-min.css"><link rel="stylesheet" type="text/css" href="/css/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">编写高效的Android代码</h1><a id="logo" href="/.">飞雪无情的博客</a><p class="description">专注于Android、Java、移动互联网、项目管理、软件架构</p></div><div id="nav-menu"><a href="/." class="current"><i class="icon-home"> 首页</i></a><a href="/books/"><i class="icon-history"> 新书</i></a><a href="/archives/"><i class="icon-archive"> 归档</i></a><a href="/about/"><i class="icon-about"> 关于</i></a><a href="/atom.xml"><i class="icon-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post post-page"><h1 class="post-title">编写高效的Android代码</h1><div class="post-meta">2011-02-22 | <span class="categories">分类于<a href="/categories/Android/"> Android</a></span></div><span data-thread-key="2011/02/22/writing-efficient-android-code.html" class="ds-thread-count"></span><div class="post-content"><p>毫无疑问，基于Android平台的设备一定是嵌入式设备。现代的手持设备不仅仅是一部电话那么简单，它还是一个小型的手持电脑，但是，即使是最快的最高端的手持设备也远远比不上一个中等性能的桌面机。</p>
+<p>这就是为什么在编写Android程序时要时刻考虑执行的效率，这些系统不是想象中的那么快，并且你还要考虑它电池的续航能力。这就意味着没有多少剩余空间给你去浪费了，因此，在你写Android程序的时候，要尽可能的使你的代码优化而提高效率。</p>
+<p>本页介绍了几种可以让开发者的Android程序运行的更加有效率的方法。通过下面的一些跳转的连接，你可以学会怎么让你的程序更加有效运行</p>
+<p>内容</p>
+<ul>
+<li>介绍</li>
+</ul>
+<ul>
+<li>尽量避免创建对象</li>
+</ul>
+<ul>
+<li>使用自身方法</li>
+</ul>
+<ul>
+<li>使用虚拟优于使用接口</li>
+</ul>
+<ul>
+<li>使用静态优于使用虚拟</li>
+</ul>
+<ul>
+<li>避免内部使用Setter和Getter</li>
+</ul>
+<ul>
+<li>缓冲属性调用</li>
+</ul>
+<ul>
+<li>声明Final常量</li>
+</ul>
+<ul>
+<li>慎重使用增强型的For循环语句</li>
+</ul>
+<ul>
+<li>避免列举类型Avoid Enums</li>
+</ul>
+<ul>
+<li>通过内联类使用包空间</li>
+</ul>
+<ul>
+<li>尽量避免浮点类型</li>
+</ul>
+<ul>
+<li>一些标准操作的时间比较</li>
+</ul>
+<ul>
+<li><a href="/admin/blogs/l#closing_notes">结束语</a></li>
+</ul>
+<h2 id="介绍">介绍</h2><p>对于如何判断一个系统的不合理，这里有两个基本的原则：</p>
+<ul>
+<li>不要做不必要做的事情。</li>
+</ul>
+<ul>
+<li>尽可能的节省内存的使用。</li>
+</ul>
+<p>下面的所有方法都是基于这两项的。</p>
+<p>有人会认为本页花了大量的篇幅去讲如何进行“初步优化”（ premature<br>optimization）。虽然有时候微观优化对开发高效的数据结构和算法很困难，但是在嵌入式手持设备上面你毫无选择。例如，如果把桌面电脑的虚拟机<br>移植到你的Android系统中，你会发现你写的程序会耗尽你的内存。这就会导致程序运行起来极度缓慢，即使不考虑它对系统上其他的运行程序的影响。</p>
+<p>这就是为什么上面两条原则这么重要。Android的成功在于开发程序提供给用户的体验，然而用户体验的好坏又决定于你的代码是否能及时的响应而不<br>至于慢的让人崩溃。因为我们所有的程序都会在同一个设备上面运行，所以我们把它们作为一个整体来考虑。本文就像你考驾照需要学习的交通规则一样：如果所有<br>人遵守，事情就会很流畅；但当你不遵守时，你就会撞车。</p>
+<p>在我们讨论实质问题之前，有一个简要的说明：无论虚拟机是否是Java编译器的一个特点，下面介绍的所有观点都是正确的。如果我们有两种方法完成同<br>样的事情，但是foo()的解释执行要快于bar()，那么foo()的编译速度一定不会比bar()慢，仅仅靠编译器使你的代码运行速度提升是不明智的<br>做法。</p>
+<h2 id="尽可能避免创建对象（Object）">尽可能避免创建对象（Object）</h2><p>对象的创建并不是没有代价的。一个带有线程分配池的generational的内存管理机制会使创建临时对象的代价减少，不是分配内存总比不上不分配内存好。</p>
+<p>如果你在一个用户界面的循环中分配一个对象，你不得不强制的进行内存回收，那么就会使用户体验出现稍微“打嗝”的现象。</p>
+<p>因此，如果没有必要你就不应该创建对象实例。下面是一件有帮助的例子：</p>
+<ul>
+<li>当从原始的输入数据中提取字符串时，试着从原始字符串返回一个子字符串，而不是创建一份拷贝。你将会创建一个新的字符串对象，但是它和你的原始数据共享数据空间。</li>
+</ul>
+<ul>
+<li>如果你有一个返回字符串地方法，你应该知道无论如何返回的结果是StringBuffer，改变你的函数的定义和执行，让函数直接返回而不是通过创建一个临时的对象。</li>
+</ul>
+<p>一个比较激进的方法就是把一个多维数组分割成几个平行的一维数组：</p>
+<ul>
+<li>一个Int类型的数组要比一个Integer类型的数组要好，但着同样也可以归纳于这样一个原则，两个Int类型的数组要比一个（int，int）对象数组的效率要高的多<br>。对于其他原始数据类型，这个原则同样适用。</li>
+</ul>
+<ul>
+<li><br>如果你需要创建一个包含一系列Foo和Bar对象的容器（container）时，记住：两个平行的Foo[]和Bar[]要比一个（Foo,Bar）对<br>象数组的效率高得多。（这个例子也有一个例外，当你设计其他代码的接口API时；在这种情况下，速度上的一点损失就不用考虑了。但是，在你的代码里面，你<br>应该尽可能的编写高效代码。）</li>
+</ul>
+<p>一般来说，尽可能的避免创建短期的临时对象。越少的对象创建意味着越少的垃圾回收，这会提高你程序的用户体验质量。</p>
+<h2 id="使用自身方法（Use_Native_Methods）">使用自身方法（Use Native Methods）</h2><p>当处理字符串的时候，不要犹豫，尽可能多的使用诸如String.indexOf()、String.lastIndexOf()这样对象自身带有的方法。因为这些方法使用C/C++来实现的，要比在一个java循环中做同样的事情快10-100倍。</p>
+<p>还有一点要补充说明的是，这些自身方法使用的代价要比那些解释过的方法高很多，因而，对于细微的运算，尽量不用这类方法。</p>
+<h2 id="使用虚拟优于使用接口">使用虚拟优于使用接口</h2><p>假设你有一个HashMap对象，你可以声明它是一个HashMap或则只是一个Map：</p>
+<pre><code>Map myMap1 = <span class="keyword">new</span> <span class="keyword">HashMap</span>();
+<span class="keyword">HashMap</span> myMap2 = <span class="keyword">new</span> <span class="keyword">HashMap</span>();
+</code></pre><p>哪一个更好呢？</p>
+<p>一般来说明智的做法是使用Map，因为它能够允许你改变Map接口执行上面的任何东西，但是这种“明智”的方法只是适用于常规的编程，对于嵌入式系统并不适合。通过接口引用来调用会花费2倍以上的时间，相对于通过具体的引用进行虚拟函数的调用。</p>
+<p>如果你选择使用一个HashMap，因为它更适合于你的编程，那么使用Map会毫无价值。假定你有一个能重构你代码的集成编码环境，那么调用Map<br>没有什么用处，即使你不确定你的程序从哪开头。（同样，public的API是一个例外，一个好的API的价值往往大于执行效率上的那点损失）</p>
+<h2 id="使用静态优于使用虚拟">使用静态优于使用虚拟</h2><p>如果你没有必要去访问对象的外部，那么使你的方法成为静态方法。它会被更快的调用，因为它不需要一个虚拟函数导向表。这同时也是一个很好的实践，因为它告诉你如何区分方法的性质（signature），调用这个方法不会改变对象的状态。</p>
+<h2 id="尽可能避免使用内在的Get、Set方法">尽可能避免使用内在的Get、Set方法</h2><p>像C++iyangde编程语言，通常会使用Get方法(例如<code>i = getCount()</code><br>)去取代直接访问这个属性（<code>i=mCount</code><br>）。 这在C++编程里面是一个很好的习惯，因为编译器会把访问方式设置为Inline，并且如果想约束或调试属性访问，你只需要在任何时候添加一些代码。</p>
+<p>在Android编程中，这不是一个很不好的主意。虚方法的调用会产生很多代价，比实例属性查询的代价还要多。我们应该在外部调用时使用Get和Set函数，但是在内部调用时，我们应该直接调用。</p>
+<h2 id="缓冲属性调用Cache_Field_Lookups">缓冲属性调用Cache Field Lookups</h2><p>访问对象属性要比访问本地变量慢得多。你不应该这样写你的代码：</p>
+<pre><code>for <span class="comment">(int i = 0; i &lt; this.mCount; i++)</span>
+      dumpItem<span class="comment">(this.mItems[i])</span>;
+</code></pre><p>而是应该这样写：</p>
+<pre><code><span class="keyword">int</span> <span class="keyword">count</span> = <span class="keyword">this</span>.mCount;
+Item[] items = <span class="keyword">this</span>.mItems;
+
+<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="keyword">count</span>; i++)
+    dumpItems(items[i]);
+</code></pre><p>（我们直接使用“this”表明这些是它的成员变量）</p>
+<p>一个相似的原则就是：决不在一个For语句中第二次调用一个类的方法。例如，下面的代码就会一次又一次地执行getCount（）方法，这是一个极大地浪费相比你把它直接隐藏到一个Int变量中。</p>
+<pre><code>for <span class="comment">(int i = 0; i &lt; this.getCount()</span>; i++)
+    dumpItems<span class="comment">(this.getItem(i)</span>);
+</code></pre><p>这是一个比较好的办法，当你不止一次的调用某个实例时，直接本地化这个实例，把这个实例中的某些值赋给一个本地变量。例如：</p>
+<pre><code> <span class="keyword">protected</span> <span class="keyword">void</span> drawHorizontalScrollBar(Canvas canvas, <span class="built_in">int</span> <span class="variable">width</span>, <span class="built_in">int</span> <span class="variable">height</span>) {
+        <span class="keyword">if</span> (isHorizontalScrollBarEnabled()) {
+            <span class="built_in">int</span> <span class="built_in">size</span> = mScrollBar.getSize(<span class="keyword">false</span>
+
+);
+            <span class="keyword">if</span> (<span class="built_in">size</span> &lt;= <span class="number">0</span>) {
+                <span class="built_in">size</span> = mScrollBarSize;
+            }
+            mScrollBar.setBounds(<span class="number">0</span>, <span class="variable">height</span>- <span class="built_in">size</span>, <span class="variable">width</span>, <span class="variable">height</span>);
+            mScrollBar.setParams(
+                    computeHorizontalScrollRange(),
+                    computeHorizontalScrollOffset(),
+                    computeHorizontalScrollExtent(), <span class="keyword">false</span>
+
+);
+            mScrollBar.<span class="title">draw</span>(canvas);
+        }
+    }
+</code></pre><p>这里有四次<code>mScrollBar</code><br>的属性调用，把<code>mScrollBar</code><br>缓冲到一个堆栈变量之中，四次成员属性的调用就会变成四次堆栈的访问，这样就会提高效率。</p>
+<p>附带说一下，对于方法同样也可以像本地变量一样具有相同的特点。</p>
+<h2 id="声明Final常量">声明Final常量</h2><p>我们可以看看下面一个类顶部的声明：</p>
+<pre><code><span class="literal">static</span> <span class="built_in">int</span> intVal = <span class="number">42</span>;
+<span class="literal">static</span> <span class="built_in">String</span> strVal = <span class="string">"Hello, world!"</span>;
+</code></pre><p>当一个类第一次使用时，编译器会调用一个类初始化方法——<code>`
+，这个方法将42存入变量</code>intVal<code>，并且为</code>strVal`<br>在类文件字符串常量表中提取一个引用，当这些值在后面引用时，就会直接属性调用。</p>
+<p>我们可以用关键字“final”来改进代码：</p>
+<pre><code><span class="literal">static</span> <span class="keyword">final</span> <span class="built_in">int</span> intVal = <span class="number">42</span>;
+<span class="literal">static</span> <span class="keyword">final</span> <span class="built_in">String</span> strVal = <span class="string">"Hello, world!"</span>;
+</code></pre><p>这个类将不会调用es a <code>`
+方法，因为这些常量直接写入了类文件静态属性初始化中，这个初始化直接由虚拟机来处理。代码访问</code>intVal<code>将会使用Integer类型的42，访问</code>strVal`<br>将使用相对节省的“字符串常量”来替代一个属性调用。</p>
+<p>将一个类或者方法声明为“final”并不会带来任何的执行上的好处，它能够进行一定的最优化处理。例如，如果编译器知道一个Get方法不能被子类重载，那么它就把该函数设置成Inline。</p>
+<p>同时，你也可以把本地变量声明为final变量。但是，这毫无意义。作为一个本地变量，使用final只能使代码更加清晰（或者你不得不用，在匿名访问内联类时）。</p>
+<h2 id="慎重使用增强型For循环语句">慎重使用增强型For循环语句</h2><p>增强型For循环（也就是常说的“For-each循环”）经常用于Iterable接口的继承收集接口上面。在这些对象里面，一个<br>iterator被分配给对象去调用它的hasNext（）和next（）方法。在一个数组列表里面，你可以自己接的敷衍它，在其他的收集器里面，增强型<br>的for循环将相当于iterator的使用。</p>
+<p>尽管如此，下面的源代码给出了一个可以接受的增强型for循环的例子：</p>
+<pre><code><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Foo</span> </span>{
+    <span class="keyword">int</span> mSplat;
+    <span class="keyword">static</span> Foo mArray[] = <span class="keyword">new</span> Foo[<span class="number">27</span>];
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> zero() {
+        <span class="keyword">int</span> <span class="keyword">sum</span> = <span class="number">0</span>;
+        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; mArray.length; i++) {
+            <span class="keyword">sum</span> += mArray[i].mSplat;
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> one() {
+        <span class="keyword">int</span> <span class="keyword">sum</span> = <span class="number">0</span>;
+        Foo[] localArray = mArray;
+        <span class="keyword">int</span> len = localArray.length;
+
+        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; len; i++) {
+            <span class="keyword">sum</span> += localArray[i].mSplat;
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> two() {
+        <span class="keyword">int</span> <span class="keyword">sum</span> = <span class="number">0</span>;
+        <span class="keyword">for</span> (Foo a: mArray) {
+            <span class="keyword">sum</span> += a.mSplat;
+        }
+    }
+}
+</code></pre><p>zero()<br>函数在每一次的循环中重新得到静态属性两次，获得数组长度一次。</p>
+<p>one()<br>函数把所有的东西都变为本地变量，避免类查找属性调用</p>
+<p>two()</p>
+<p>函数使用Java语言的1.5版本中的for循环语句，编辑者产生的源代码考虑到了拷贝数组的引用和数组的长度到本地变量，是例遍数组比较好的方法，它在<br>主循环中确实产生了一个额外的载入和储存过程（显然保存了“a”），相比函数one（）来说，它有一点比特上的减慢和4字节的增长。</p>
+<p>总结之后，我们可以得到：增强的for循环在数组里面表现很好，但是当和Iterable对象一起使用时要谨慎，因为这里多了一个对象的创建。</p>
+<h2 id="避免列举类型Avoid_Enums">避免列举类型Avoid Enums</h2><p>列举类型非常好用，当考虑到尺寸和速度的时候，就会显得代价很高，例如：</p>
+<pre><code><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Foo</span> {</span>
+   <span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">Shrubbery</span> {</span> GROUND, CRAWLING, HANGING }
+}
+</code></pre><p>这会转变成为一个900字节的class文件（Foo$Shrubbery.class）。第一次使用时，类的初始化要在独享上面调用方法去描述列举的每一项，每一个对象都要有它自身的静态空间，整个被储存在一个数组里面（一个叫做“$VALUE”的静态数组）。那是一大堆的代码和数据，仅仅是为了三个整数值。</p>
+<pre><code><span class="attribute">Shrubbery shrub </span>=<span class="string"> Shrubbery.GROUND;</span>
+</code></pre><p>这会引起一个静态属性的调用，如果GROUND是一个静态的Final变量，编译器会把它当做一个常数嵌套在代码里面。</p>
+<p>还有一点要说的，通过列举，你可以得到更好地API和一些编译时间上的检查。因此，一种比较平衡的做法就是：你应该尽一切方法在你的公用API中使用列举型变量，当处理问题时就尽量的避免。</p>
+<p>在一些环境下面，通过<code>ordinal</code><br>（）方法获取一个列举变量的整数值是很有用的，例如：把下面代码</p>
+<pre><code><span class="keyword">for</span> (int <span class="keyword">n</span> = 0; <span class="keyword">n</span> &lt; <span class="keyword">list</span>.size(); <span class="keyword">n</span>++) {
+    <span class="keyword">if</span> (<span class="keyword">list</span>.items[<span class="keyword">n</span>].<span class="keyword">e</span> == MyEnum.VAL_X)
+       <span class="comment">// do stuff 1</span>
+    <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">list</span>.items[<span class="keyword">n</span>].<span class="keyword">e</span> == MyEnum.VAL_Y)
+       <span class="comment">// do stuff 2</span>
+}
+</code></pre><p>替换为：</p>
+<pre><code>int valX = MyEnum.VAL_X.ordinal();
+int valY = MyEnum.VAL_Y.ordinal();
+int <span class="keyword">count</span> = <span class="keyword">list</span>.size();
+MyItem items = <span class="keyword">list</span>.items();
+
+<span class="keyword">for</span> (int  <span class="keyword">n</span> = 0; <span class="keyword">n</span> &lt; <span class="keyword">count</span>; <span class="keyword">n</span>++)
+{
+     int  valItem = items[<span class="keyword">n</span>].<span class="keyword">e</span>.ordinal();
+
+     <span class="keyword">if</span> (valItem == valX)
+       <span class="comment">// do stuff 1</span>
+     <span class="keyword">else</span> <span class="keyword">if</span> (valItem == valY)
+       <span class="comment">// do stuff 2</span>
+}
+</code></pre><p>在一些条件下，这会执行的更快，虽然没有保障。</p>
+<h2 id="通过内联类使用包空间">通过内联类使用包空间</h2><p>我们看下面的类声明</p>
+<pre><code><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Foo</span> {
+    <span class="keyword">private</span> <span class="keyword">int</span> mValue;
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>{
+        Inner <span class="keyword">in</span> = <span class="keyword">new</span> Inner();
+        mValue = <span class="number">27</span>;
+        <span class="keyword">in</span>.stuff();
+    }
+
+    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doStuff</span><span class="params">(<span class="keyword">int</span> <span class="keyword">value</span>)</span> </span>{
+        System.<span class="keyword">out</span>.println(<span class="string">"Value is "</span> + <span class="keyword">value</span>);
+    }
+
+    <span class="keyword">private</span> <span class="keyword">class</span> <span class="title">Inner</span> {
+        <span class="function"><span class="keyword">void</span> <span class="title">stuff</span><span class="params">()</span> </span>{
+            Foo.<span class="keyword">this</span>.doStuff(Foo.<span class="keyword">this</span>.mValue);
+        }
+    }
+}
+</code></pre><p>这里我们要注意的是我们定义了一个内联类，它调用了外部类的私有方法和私有属性。这是合法的调用，代码应该会显示”Value is 27”。</p>
+<p>问题是Foo$Inner在理论上（后台运行上）是应该是一个完全独立的类，它违规的调用了Foo的私有成员。为了弥补这个缺陷，编译器产生了一对合成的方法：</p>
+<pre><code><span class="comment">/*package*/</span> <span class="keyword">static</span> <span class="keyword">int</span> Foo.access$<span class="number">100</span>(Foo foo) {
+    <span class="keyword">return</span> foo.mValue;
+}
+<span class="comment">/*package*/</span> <span class="keyword">static</span> <span class="keyword">void</span> Foo.access$<span class="number">200</span>(Foo foo, <span class="keyword">int</span> <span class="keyword">value</span>) {
+    foo.doStuff(<span class="keyword">value</span>);
+}
+</code></pre><p>当内联类需要从外部访问“mValue”和调用“doStuff”时，内联类就会调用这些静态的方法，这就意味着你不是直接访问类成员，而是通过公共的方法来访问的。前面我们谈过间接访问要比直接访问慢，因此这是一个按语言习惯无形执行的例子。</p>
+<p>让拥有包空间的内联类直接声明需要访问的属性和方法，我们就可以避免这个问题，哲理诗是包空间而不是私有空间。这运行的更快并且去除了生成函数前面<br>东西。（不幸的是，它同时也意味着该属性也能够被相同包下面的其他的类直接访问，这违反了标准的面向对象的使所有属性私有的原则。同样，如果是设计公共的<br>API你就要仔细的考虑这种优化的用法）</p>
+<h2 id="避免浮点类型的使用">避免浮点类型的使用</h2><p>在奔腾CPU发布之前，游戏作者尽可能的使用Integer类型的数学函数是很正常的。在奔腾处理器里面，浮点数的处理变为它一个突出的特点，并且浮点数与整数的交互使用相比单独使用整数来说，前者会使你的游戏运行的更快，一般的在桌面电脑上面我们可以自由的使用浮点数。</p>
+<p>不幸的是，嵌入式的处理器通常并不支持浮点数的处理，阴齿所有的“float”和“double”操作都是通过软件进行的，一些基本的浮点数的操作就需要花费毫秒级的时间。</p>
+<p>同事，即使是整数，一些芯片也只有乘法而没有除法。在这些情况下，整数的除法和取模操作都是通过软件实现。当你创建一个Hash表或者进行大量的数学运算时，这都是你要考虑的。</p>
+<h2 id="一些标准操作的时间比较">一些标准操作的时间比较</h2><p>为了距离说明我们的观点，下面有一张表，包括一些基本操作所使用的大概时间。注意这些时间并不是绝对的时间，绝对时间要考虑到CPU和时钟频率。系<br>统不同，时间的大小也会有所差别。当然，这也是一种有意义的比较方法，我们可以比叫不同操作花费的相对时间。例如，添加一个成员变量的时间是添加一个本地<br>变量的四倍。</p>
+<p>Action<br>Time</p>
+<table border="0"><br><tbody><br><tr><br><br><td>Add a local variable<br></td><br><br><td>1<br></td><br></tr><br><tr><br><br><td>Add a member variable<br></td><br><br><td>4<br></td><br></tr><br><tr><br><br><td>Call String.length()<br></td><br><br><td>5<br></td><br></tr><br><tr><br><br><td>Call empty static native method<br></td><br><br><td>5<br></td><br></tr><br><tr><br><br><td>Call empty static method<br></td><br><br><td>12<br></td><br></tr><br><tr><br><br><td>Call empty virtual method<br></td><br><br><td>12.5<br></td><br></tr><br><tr><br><br><td>Call empty interface method<br></td><br><br><td>15<br></td><br></tr><br><tr><br><br><td>Call Iterator:next() on a HashMap<br></td><br><br><td>165<br></td><br></tr><br><tr><br><br><td>Call put() on a HashMap<br></td><br><br><td>600<br></td><br></tr><br><tr><br><br><td>Inflate 1 View from XML<br></td><br><br><td>22,000<br></td><br></tr><br><tr><br><br><td>Inflate 1 LinearLayout containing 1 TextView<br></td><br><br><td>25,000<br></td><br></tr><br><tr><br><br><td>Inflate 1 LinearLayout containing 6 View objects<br></td><br><br><td>100,000<br></td><br></tr><br><tr><br><br><td>Inflate 1 LinearLayout containing 6 TextView objects<br></td><br><br><td>135,000<br></td><br></tr><br><tr><br><br><td>Launch an empty activity<br></td><br><br><td>3,000,000<br></td><br></tr><br></tbody><br></table>
+
+
+
+<h2 id="结束语">结束语</h2><p>写高效的嵌入式程序的最好方法就是要搞清楚你写的程序究竟做了些什么。如果你真的想分配一个iterator类，进一切方法的在一个List中使用增强型的for循环，使它成为一个有意而为之的做法，而不是一个无意的疏漏而产生负面影响。</p>
+<p>有备无患，搞清楚你在做什么！你可以假如你自己的一些行为准则，但是一定要注意你的代码正在做什么，然后开始寻找方法去优化它。</p>
+<p>转自：<a href="http://www.chinaup.org/docs/toolbox/performance.html" target="_blank" rel="external">http://www.chinaup.org/docs/toolbox/performance.html</a></p>
+</div><div class="tags"><a href="/tags/Android/">Android</a></div><div class="post-nav"><a href="/2011/03/02/sina-weibo-tool-bar-tabhost.html" class="pre"><i class="icon-previous">新浪微博布局学习——妙用TabHost</i></a><a href="/2011/02/15/android-icon-with-number.html" class="next">Android中为图标加上数字--用于未读短信数提醒，待更新应用数提醒等<i class="icon-next"></i></a></div><div data-thread-key="2011/02/22/writing-efficient-android-code.html" data-title="编写高效的Android代码" data-url="http://www.flysnow.org/2011/02/22/writing-efficient-android-code.html" class="ds-share flat"><div class="ds-share-inline"><ul class="ds-share-icons-16"><li data-toggle="ds-share-icons-more"><a href="javascript:void(0);" class="ds-more">分享到：</a></li><li><a href="javascript:void(0);" data-service="weibo" class="ds-weibo">微博</a></li><li><a href="javascript:void(0);" data-service="qzone" class="ds-qzone">QQ空间</a></li><li><a href="javascript:void(0);" data-service="qqt" class="ds-qqt">腾讯微博</a></li><li><a href="javascript:void(0);" data-service="wechat" class="ds-wechat">微信</a></li></ul><div class="ds-share-icons-more"></div></div></div><div data-thread-key="2011/02/22/writing-efficient-android-code.html" data-title="编写高效的Android代码" data-url="http://www.flysnow.org/2011/02/22/writing-efficient-android-code.html" data-author-key="1" class="ds-thread"></div></div></div></div><div class="pure-u-1-4"><div id="sidebar"><div class="widget"><form action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="text" name="q" maxlength="20" placeholder="Search" class="search-form-input"/><input type="hidden" name="sitesearch" value="http://www.flysnow.org"/></form></div><div class="widget"><div class="widget-title">最新文章</div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2016/05/22/groovy-basis.html">Groovy基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/11/android-gradle-getting-started.html">Android Gradle 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/13/android-tech-docs-support-annotations.html">Android注解支持(Support Annotations)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/06/android-tech-docs-tools-attributes.html">Android技术文档翻译--工具属性(Tools Attributes)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/03/android-tech-docs-ant-tasks.html">android技术文档翻译--ant任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/manage-your-android-project-with-gradle.html">使用Gradle管理你的Android Studio工程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/19/android-process-application-init-databases-problem.html">Android多进程的数据库访问问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/10/github-page-with-hexo.html">使用Hexo在Github上搭建自己的博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-gradle-plugin-translate-done.html">Android Gradle插件中文指南</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/07/13/effective-programming-more-than-writing-code.html">高效能程序员的修炼</a></li></ul></div><div class="widget"><div class="comments-title">最近评论</div><div data-num-items="5" data-show-avatars="0" data-show-time="1" data-show-admin="0" data-excerpt-length="32" data-show-title="1" class="ds-recent-comments"></div></div><div class="widget"><div class="widget-title">分类</div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Android/Gradle/">Gradle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/Gradle/">Gradle</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hexo/">Hexo</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/软件开发/">软件开发</a></li></ul></div><div class="widget"><div class="widget-title">标签</div><div class="tagcloud"><a href="/tags/Ubuntu/" style="font-size: 15px;">Ubuntu</a><a href="/tags/Android/" style="font-size: 15px;">Android</a><a href="/tags/Ant/" style="font-size: 15px;">Ant</a><a href="/tags/数据库/" style="font-size: 15px;">数据库</a><a href="/tags/Hexo/" style="font-size: 15px;">Hexo</a><a href="/tags/Github/" style="font-size: 15px;">Github</a><a href="/tags/翻译/" style="font-size: 15px;">翻译</a><a href="/tags/软件开发/" style="font-size: 15px;">软件开发</a><a href="/tags/Apache/" style="font-size: 15px;">Apache</a><a href="/tags/Linux/" style="font-size: 15px;">Linux</a><a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a><a href="/tags/PHP/" style="font-size: 15px;">PHP</a><a href="/tags/Gradle/" style="font-size: 15px;">Gradle</a><a href="/tags/开源/" style="font-size: 15px;">开源</a><a href="/tags/Http/" style="font-size: 15px;">Http</a><a href="/tags/HttpClitent/" style="font-size: 15px;">HttpClitent</a><a href="/tags/API/" style="font-size: 15px;">API</a><a href="/tags/Widget/" style="font-size: 15px;">Widget</a><a href="/tags/goagent/" style="font-size: 15px;">goagent</a><a href="/tags/代理/" style="font-size: 15px;">代理</a><a href="/tags/翻墙/" style="font-size: 15px;">翻墙</a><a href="/tags/Email/" style="font-size: 15px;">Email</a><a href="/tags/敏捷/" style="font-size: 15px;">敏捷</a><a href="/tags/软件工程/" style="font-size: 15px;">软件工程</a><a href="/tags/Intent/" style="font-size: 15px;">Intent</a></div></div><div class="widget"><div class="widget-title">友情链接</div><ul></ul><a href="http://yuedu.baidu.com/ebook/14a722970740be1e640e9a3e" title="Android Gradle权威指南" target="_blank">Android Gradle权威指南</a></div></div></div></div><div id="footer">© <a href="/." rel="nofollow">飞雪无情的博客.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div><a id="rocket" href="#top" class="show"></a><script src="/js/jquery.min.js" type="text/javascript"></script>
+<script src="/js/totop.js" type="text/javascript"></script><script src="/js/fancybox.pack.js" type="text/javascript"></script>
+<script src="/js/jquery.fancybox.js" type="text/javascript"></script><link rel="stylesheet" href="/css/jquery.fancybox.css" type="text/css"><script>var duoshuoQuery = {short_name:'flysnow'};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-44570956-1','auto');ga('send','pageview');
+</script></div></body></html>

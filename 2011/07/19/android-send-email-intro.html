@@ -1,0 +1,293 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Android中我为什么发不了邮件--Android邮件发送详解 | 飞雪无情的博客</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"><link rel="stylesheet" type="text/css" href="/css/pure-min.css"><link rel="stylesheet" type="text/css" href="/css/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Android中我为什么发不了邮件--Android邮件发送详解</h1><a id="logo" href="/.">飞雪无情的博客</a><p class="description">专注于Android、Java、移动互联网、项目管理、软件架构</p></div><div id="nav-menu"><a href="/." class="current"><i class="icon-home"> 首页</i></a><a href="/books/"><i class="icon-history"> 新书</i></a><a href="/archives/"><i class="icon-archive"> 归档</i></a><a href="/about/"><i class="icon-about"> 关于</i></a><a href="/atom.xml"><i class="icon-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post post-page"><h1 class="post-title">Android中我为什么发不了邮件--Android邮件发送详解</h1><div class="post-meta">2011-07-19 | <span class="categories">分类于<a href="/categories/Android/"> Android</a></span></div><span data-thread-key="2011/07/19/android-send-email-intro.html" class="ds-thread-count"></span><div class="post-content"><p>Android中我为什么发不了邮件？？？我手机里明明有邮件客户端的，可我为什么不能调用它发送邮件？？？相信这是很多人会问的问题，手机里有Email客户端，可是偏偏在自己的应用里调用不了，抑或是不知道怎么调用，还有的是一直认为自己写对了，可是偏偏不能调用，无奈之下只能却网上找段代码粘贴上，ok，可以了。。可是你知道别人的代码为什么可以？你知道调用Email是怎么工作的吗？如果你又像给多人发邮件，还想发送附件，怎么做？又迷糊了吧？所以需要搞懂原理才能一通百通，举一反三，而这就是这篇博文要写的，也是你可以在这篇博文中学到的。</p>
+<p>在这里你可以学到：</p>
+<ol>
+<li>什么是Intent和Intent Fileter</li>
+</ol>
+<ol>
+<li>如何发送Email</li>
+</ol>
+<ol>
+<li>如何发送特定的标题和内容的Emil</li>
+</ol>
+<ol>
+<li>如何发送给多人</li>
+</ol>
+<ol>
+<li>如何抄送和密送</li>
+</ol>
+<ol>
+<li>如何发送附件</li>
+</ol>
+<h2 id="一：什么是Intent和Intent_Fileter">一：什么是Intent和Intent Fileter</h2><p>关于这个详细介绍请参考 :</p>
+<p><a href="/2011/03/14/android-intents-and-intent-filters-one.html">Intents and Intent Filters(一)</a></p>
+<p><a href="/2011/03/17/android-intents-and-intent-filters-two.html">Intents and Intent Filters(二)</a></p>
+<p><a href="/2011/03/29/android-intents-and-intent-filters-three.html">Intents and Intent Filters(三)</a></p>
+<h2 id="二：如何发送Email">二：如何发送Email</h2><p>通过上面就会知道Android应用之间的通信是通过Intent这个东西，如果手机中有实现了你想要功能的应用那么你就不用麻烦去实现一个拉。直接使用就可以，比如这里的发送邮件。</p>
+<p>我们新建一个工程SendEmail，基于Android1.6实现。然后定义布局文件和代码如下：</p>
+<pre><code>&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"utf-8"</span>?&gt;
+&lt;<span class="type">LinearLayout</span> xmlns:android=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    android:orientation=<span class="string">"vertical"</span>
+    android:layout_width=<span class="string">"fill_parent"</span>
+    android:layout_height=<span class="string">"fill_parent"</span>
+    &gt;
+&lt;<span class="type">Button</span>
+    android:id=<span class="string">"@+id/send_btn"</span>  
+    android:layout_width=<span class="string">"fill_parent"</span> 
+    android:layout_height=<span class="string">"wrap_content"</span> 
+    android:text=<span class="string">"Send Action"</span>
+    /&gt;
+&lt;/<span class="type">LinearLayout</span>&gt;
+
+
+
+
+
+ <span class="comment">/** 发送邮件测试界面
+ * @author 飞雪无情
+ * ＠since 2011-7-19
+ */</span>
+public <span class="class"><span class="keyword">class</span> <span class="title">SendEmailActivity</span> <span class="keyword"><span class="keyword">extends</span></span> <span class="title">Activity</span> <span class="title">implements</span> <span class="title">View</span>.<span class="title">OnClickListener</span>{</span>
+    <span class="keyword">private</span> <span class="type">Button</span> mSendBtn;
+    <span class="comment">/** Called when the activity is first created. */</span>
+    <span class="annotation">@Override</span>
+    public void onCreate(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.onCreate(savedInstanceState);
+        setContentView(<span class="type">R</span>.layout.main);
+        mSendBtn=(<span class="type">Button</span>)findViewById(<span class="type">R</span>.id.send_btn);
+        mSendBtn.setOnClickListener(<span class="keyword">this</span>);
+    }
+    <span class="annotation">@Override</span>
+    public void onClick(<span class="type">View</span> v) {
+        switch(v.getId()){
+        <span class="keyword">case</span> <span class="type">R</span>.id.send_btn:
+            startSendEmailIntent();
+            <span class="keyword">break</span>;
+        }
+    }
+    <span class="keyword">private</span> void startSendEmailIntent(){
+        <span class="type">Intent</span> data=<span class="keyword">new</span> <span class="type">Intent</span>(<span class="type">Intent</span>.<span class="type">ACTION_SENDTO</span>);
+        data.setData(<span class="type">Uri</span>.parse(<span class="string">"mailto:qq10000@qq.com"</span>));
+        data.putExtra(<span class="type">Intent</span>.<span class="type">EXTRA_SUBJECT</span>, <span class="string">"这是标题"</span>);
+        data.putExtra(<span class="type">Intent</span>.<span class="type">EXTRA_TEXT</span>, <span class="string">"这是内容"</span>);
+        startActivity(data);
+    }
+}
+</code></pre><p>这是我们运行应用，点击按钮就会看到如下效果:</p>
+<p><img src="http://dl.iteye.com/upload/attachment/520422/f01623aa-77eb-3a1f-bf30-306092c83e0d.png" alt=""><br><img src="http://dl.iteye.com/upload/attachment/520425/ed85ef04-3760-33a4-a0e7-b4fc2701eaca.png" alt=""></p>
+<h2 id="三：分析发送代码">三：分析发送代码</h2><p>主要的发送代码如下：</p>
+<pre><code>Intent <span class="built_in">data</span><span class="subst">=</span><span class="literal">new</span> Intent(Intent<span class="built_in">.</span>ACTION_SENDTO);
+<span class="built_in">data</span><span class="built_in">.</span>setData(Uri<span class="built_in">.</span>parse(<span class="string">"mailto:qq10000@qq.com"</span>));
+<span class="built_in">data</span><span class="built_in">.</span>putExtra(Intent<span class="built_in">.</span>EXTRA_SUBJECT, <span class="string">"这是标题"</span>);
+<span class="built_in">data</span><span class="built_in">.</span>putExtra(Intent<span class="built_in">.</span>EXTRA_TEXT, <span class="string">"这是内容"</span>);
+startActivity(<span class="built_in">data</span>);
+</code></pre><ol>
+<li>首先构造一个Action为SENDTO的Action</li>
+</ol>
+<ol>
+<li>其次创建一个Uri，他是一个mailto的邮件链接，也就是接收地址.</li>
+</ol>
+<ol>
+<li>再通过Intent.EXTRA_SUBJECT和Intent.EXTRA_TEXT传递标题和文本的数据，记住，一定要使用这些常量，这是标准，否则Email客户端不认识，那样你传递的标题和文本就不起作用了。</li>
+</ol>
+<ol>
+<li>然后就是startActivity进行打开，系统会根据Intent自动匹配找到能处理这个intent的应用，如图列表，有很多个，我们这里选择网易掌上邮，就打开了一个邮件发送界面，如我们所愿，邮件地址、标题和内容都在了，很成功.</li>
+</ol>
+<ol>
+<li>intent中的数据传递是以Extra的方式进行put后传递的，然后在使用的时候getter取出使用。</li>
+</ol>
+<h2 id="四：发送给多人以及抄送和密送">四：发送给多人以及抄送和密送</h2><p>发送给多人以及抄送和密送都很简单，查找Intent类中的Extra常量，发送有这么三个常量:Intent.EXTRA_EMAIL,Intent.EXTRA_CC,Intent.EXTRA_BCC。这三个分别用于传递“接受人地址列表”、“抄送人地址列表”和“密送人地址列表”，传递的都是String[]类型的Email地址，如果数组中有多个地址，就可以发送给多人。发送的函数修改如下，我们看下效果:</p>
+<pre><code>private <span class="keyword">void</span> startSendEmailIntent(){
+        Intent data=<span class="keyword">new</span> Intent(Intent.ACTION_SENDTO);
+        data.setData(<span class="built_in">Uri</span>.parse(<span class="string">"mailto:qq10000@qq.com"</span>));
+        data.putExtra(Intent.EXTRA_EMAIL, <span class="keyword">new</span> <span class="built_in">String</span>[]{<span class="string">"ls8707@163.com"</span>,<span class="string">"ls8708@163.com"</span>});
+        data.putExtra(Intent.EXTRA_CC, <span class="keyword">new</span> <span class="built_in">String</span>[]{<span class="string">"ls8709@163.com"</span>});
+        data.putExtra(Intent.EXTRA_BCC, <span class="keyword">new</span> <span class="built_in">String</span>[]{<span class="string">"ls810@163.com"</span>});
+        data.putExtra(Intent.EXTRA_SUBJECT, <span class="string">"这是标题"</span>);
+        data.putExtra(Intent.EXTRA_TEXT, <span class="string">"这是内容"</span>);
+        startActivity(data);
+    }
+</code></pre><p><img src="http://dl.iteye.com/upload/attachment/520438/c837b159-0616-3890-8344-2dd841b43585.png" alt=""></p>
+<h2 id="五，发送附件">五，发送附件</h2><p>Email’客户端的发送Activity提供了两个Intent Filter，一个用于发送普通邮件，一个用户发送带有附件的邮件。区分很很容易的，发送普通邮件的那个Intent Filter配置的Action SENDTO，而带有附件的邮件则是SEND,所以是2个不一样，但是哪些比如附加“标题”，“内容”，“抄送”，“发送多人”等等还是通用的。布局文件新增一个按钮，用于发送带有附件的邮件，Activity代码也做修改。</p>
+<pre><code>&lt;Button
+    android:id=<span class="string">"@+id/send_to_btn"</span>  
+    android:layout_width=<span class="string">"fill_parent"</span> 
+    android:layout_height=<span class="string">"wrap_content"</span> 
+    android:text=<span class="string">"SendTo Action"</span>/&gt;
+
+
+
+
+
+ <span class="comment">/* * 发送邮件测试界面
+ * @author 飞雪无情 
+ * ＠since 2011-7-19
+ */</span>
+<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SendEmailActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> <span class="keyword">implements</span> <span class="title">View</span>.<span class="title">OnClickListener</span></span>{
+    <span class="keyword">private</span> Button mSendBtn;
+    <span class="keyword">private</span> Button mSendToBtn;
+    <span class="javadoc">/** Called when the activity is first created. */</span>
+    <span class="annotation">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>{
+        <span class="keyword">super</span>.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        mSendBtn=(Button)findViewById(R.id.send_btn);
+        mSendToBtn=(Button)findViewById(R.id.send_to_btn);
+        mSendBtn.setOnClickListener(<span class="keyword">this</span>);
+        mSendToBtn.setOnClickListener(<span class="keyword">this</span>);
+    }
+    <span class="annotation">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>{
+        <span class="keyword">switch</span>(v.getId()){
+        <span class="keyword">case</span> R.id.send_btn:
+            startSendEmailIntent();
+            <span class="keyword">break</span>;
+        <span class="keyword">case</span> R.id.send_to_btn:
+            startSendToEmailIntent();
+            <span class="keyword">break</span>;
+        }
+    }
+    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">startSendEmailIntent</span><span class="params">()</span></span>{
+        Intent data=<span class="keyword">new</span> Intent(Intent.ACTION_SENDTO);
+        data.setData(Uri.parse(<span class="string">"mailto:qq10000@qq.com"</span>));
+        data.putExtra(Intent.EXTRA_EMAIL, <span class="keyword">new</span> String[]{<span class="string">"ls8707@163.com"</span>,<span class="string">"ls8708@163.com"</span>});
+        data.putExtra(Intent.EXTRA_CC, <span class="keyword">new</span> String[]{<span class="string">"ls8709@163.com"</span>});
+        data.putExtra(Intent.EXTRA_BCC, <span class="keyword">new</span> String[]{<span class="string">"ls810@163.com"</span>});
+        data.putExtra(Intent.EXTRA_SUBJECT, <span class="string">"这是标题"</span>);
+        data.putExtra(Intent.EXTRA_TEXT, <span class="string">"这是内容"</span>);
+        startActivity(data);
+    }
+    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">startSendToEmailIntent</span><span class="params">()</span></span>{
+        Intent data=<span class="keyword">new</span> Intent(Intent.ACTION_SEND);
+        data.putExtra(Intent.EXTRA_EMAIL, <span class="keyword">new</span> String[]{<span class="string">"ls8707@163.com"</span>});
+        data.putExtra(Intent.EXTRA_SUBJECT, <span class="string">"这是标题"</span>);
+        data.putExtra(Intent.EXTRA_TEXT, <span class="string">"这是内容"</span>);
+        data.putExtra(Intent.EXTRA_STREAM, Uri.parse(<span class="string">""</span>));
+        data.setType(<span class="string">"text/plain"</span>);
+        startActivity(data);
+    }
+}
+</code></pre><p>运行应用，我们看到效果图里最小面的附件标识，说明已经可以发送附件了.</p>
+<p><img src="http://dl.iteye.com/upload/attachment/520458/5ebe4f65-d647-3e0e-8a28-c351e8b5fccb.png" alt=""></p>
+<p>发送附件最重要的就是Action必须为SEND，type一定要设置setType(“”),还要为Intent.EXTRA_STREAM赋值，类型为Uri，一个附件的Uri。这样才能发送附件。</p>
+<h2 id="六，客户端Email应用的发送Activity配置">六，客户端Email应用的发送Activity配置</h2><p>这是Android1.6自带Email客户端的配置，如下：</p>
+<pre><code><span class="tag">&lt;<span class="title">activity</span>
+            <span class="attribute">android:name</span>=<span class="value">".activity.MessageCompose"</span>
+            <span class="attribute">android:label</span>=<span class="value">"@string/app_name"</span>
+            <span class="attribute">android:enabled</span>=<span class="value">"false"</span>
+            &gt;</span>
+            <span class="tag">&lt;<span class="title">intent-filter</span>&gt;</span>
+                <span class="tag">&lt;<span class="title">action</span> <span class="attribute">android:name</span>=<span class="value">"android.intent.action.VIEW"</span> /&gt;</span>
+                <span class="tag">&lt;<span class="title">action</span> <span class="attribute">android:name</span>=<span class="value">"android.intent.action.SENDTO"</span> /&gt;</span>
+                <span class="tag">&lt;<span class="title">data</span> <span class="attribute">android:scheme</span>=<span class="value">"mailto"</span> /&gt;</span>
+                <span class="tag">&lt;<span class="title">category</span> <span class="attribute">android:name</span>=<span class="value">"android.intent.category.DEFAULT"</span> /&gt;</span>
+                <span class="tag">&lt;<span class="title">category</span> <span class="attribute">android:name</span>=<span class="value">"android.intent.category.BROWSABLE"</span> /&gt;</span>
+            <span class="tag">&lt;/<span class="title">intent-filter</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">intent-filter</span> <span class="attribute">android:label</span>=<span class="value">"@string/app_name"</span>&gt;</span>
+                <span class="tag">&lt;<span class="title">action</span> <span class="attribute">android:name</span>=<span class="value">"android.intent.action.SEND"</span> /&gt;</span>
+                <span class="tag">&lt;<span class="title">data</span> <span class="attribute">android:mimeType</span>=<span class="value">"text/plain"</span> /&gt;</span>
+                <span class="tag">&lt;<span class="title">data</span> <span class="attribute">android:mimeType</span>=<span class="value">"image/*"</span> /&gt;</span>
+                <span class="tag">&lt;<span class="title">data</span> <span class="attribute">android:mimeType</span>=<span class="value">"video/*"</span> /&gt;</span>
+                <span class="tag">&lt;<span class="title">category</span> <span class="attribute">android:name</span>=<span class="value">"android.intent.category.DEFAULT"</span> /&gt;</span>
+            <span class="tag">&lt;/<span class="title">intent-filter</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">activity</span>&gt;</span>
+</code></pre><p>从以上代码总结:</p>
+<ol>
+<li>一个Activity定义了2个Intent Filter用于发送不同类型邮件。</li>
+</ol>
+<ol>
+<li>SENDTO发送普通邮件，SEND可以发送普通和带有附件的，不过最好主要用于发送附件。</li>
+</ol>
+<ol>
+<li>使用SENDTO时，必须为Intent设置Data，也就是Uri，内容为”mailto:emailaddr”,否则不能匹配，因为有schema必须为mailto的限制</li>
+</ol>
+<ol>
+<li>使用SEND时必须要设置type，也就是使用setType()方法，type只能为以前xml定义的4个。不过我测试了text/*也可以，其他的没测试.</li>
+</ol>
+<ol>
+<li>发送附件只能使用SEND这个Action.</li>
+</ol>
+<p>附加Email客户端中提取Email地址，抄送，标题，附件等信息的源代码分析.</p>
+<pre><code><span class="keyword">void</span> initFromIntent(Intent intent) {
+
+        <span class="comment">//提取接受人地址列表</span>
+        <span class="keyword">String</span>[] extraStrings = intent.getStringArrayExtra(Intent.EXTRA_EMAIL);
+        <span class="keyword">if</span> (extraStrings != <span class="keyword">null</span>) {
+            addAddresses(mToView, extraStrings);
+        }
+<span class="comment">//提取抄送人地址列表</span>
+        extraStrings = intent.getStringArrayExtra(Intent.EXTRA_CC);
+        <span class="keyword">if</span> (extraStrings != <span class="keyword">null</span>) {
+            addAddresses(mCcView, extraStrings);
+        }
+<span class="comment">//提取密送人地址列表</span>
+        extraStrings = intent.getStringArrayExtra(Intent.EXTRA_BCC);
+        <span class="keyword">if</span> (extraStrings != <span class="keyword">null</span>) {
+            addAddresses(mBccView, extraStrings);
+        }
+<span class="comment">//提取标题</span>
+        <span class="keyword">String</span> extraString = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+        <span class="keyword">if</span> (extraString != <span class="keyword">null</span>) {
+            mSubjectView.setText(extraString);
+        }
+
+        <span class="comment">//提取Uri中的接受人地址</span>
+        <span class="keyword">final</span> Uri dataUri = intent.getData();
+        <span class="keyword">if</span> (dataUri != <span class="keyword">null</span>) {
+            <span class="keyword">if</span> (<span class="string">"mailto"</span>.equals(dataUri.getScheme())) {
+                initializeFromMailTo(dataUri.toString());
+            } <span class="keyword">else</span> {
+                <span class="keyword">String</span> toText = dataUri.getSchemeSpecificPart();
+                <span class="keyword">if</span> (toText != <span class="keyword">null</span>) {
+                    addAddresses(mToView, toText.<span class="built_in">split</span>(<span class="string">","</span>));
+                }
+            }
+        }
+
+       <span class="comment">//提取邮件内容</span>
+
+        CharSequence <span class="built_in">text</span> = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+        <span class="keyword">if</span> (<span class="built_in">text</span> != <span class="keyword">null</span>) {
+            mMessageContentView.setText(<span class="built_in">text</span>);
+        }
+
+      <span class="comment">//提取附件，可以看出Action必须是SEND.EXTRA_STREAM中有数据</span>
+     <span class="comment">//type不能为null,这样才能提取倒附件.</span>
+
+        <span class="keyword">if</span> (Intent.ACTION_SEND.equals(intent.getAction()) &amp;&amp; intent.hasExtra(Intent.EXTRA_STREAM)) {
+            <span class="keyword">String</span> type = intent.getType();
+            Uri stream = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            <span class="keyword">if</span> (stream != <span class="keyword">null</span> &amp;&amp; type != <span class="keyword">null</span>) {
+                <span class="keyword">if</span> (MimeUtility.mimeTypeMatches(type, Email.ACCEPTABLE_ATTACHMENT_SEND_TYPES)) {
+                    addAttachment(stream);
+                }
+            }
+        }
+
+        <span class="comment">// Finally - expose fields that were filled in but are normally hidden, and set focus</span>
+
+        <span class="keyword">if</span> (mCcView.length() &gt; <span class="number">0</span>) {
+            mCcView.setVisibility(View.VISIBLE);
+        }
+        <span class="keyword">if</span> (mBccView.length() &gt; <span class="number">0</span>) {
+            mBccView.setVisibility(View.VISIBLE);
+        }
+        setNewMessageFocus();
+        mDraftNeedsSaving = <span class="keyword">false</span>;
+    }
+</code></pre></div><div class="tags"><a href="/tags/Android/">Android</a><a href="/tags/Email/">Email</a></div><div class="post-nav"><a href="/2011/10/22/adsl-and-vpn-config-for-ubuntu.html" class="pre"><i class="icon-previous">Ubuntu下ADSL拨号和VPN 访问网站</i></a><a href="/2011/07/17/practices-of-an-agile-developer.html" class="next">高效程序员的45个习惯--敏捷开发修炼之道<i class="icon-next"></i></a></div><div data-thread-key="2011/07/19/android-send-email-intro.html" data-title="Android中我为什么发不了邮件--Android邮件发送详解" data-url="http://www.flysnow.org/2011/07/19/android-send-email-intro.html" class="ds-share flat"><div class="ds-share-inline"><ul class="ds-share-icons-16"><li data-toggle="ds-share-icons-more"><a href="javascript:void(0);" class="ds-more">分享到：</a></li><li><a href="javascript:void(0);" data-service="weibo" class="ds-weibo">微博</a></li><li><a href="javascript:void(0);" data-service="qzone" class="ds-qzone">QQ空间</a></li><li><a href="javascript:void(0);" data-service="qqt" class="ds-qqt">腾讯微博</a></li><li><a href="javascript:void(0);" data-service="wechat" class="ds-wechat">微信</a></li></ul><div class="ds-share-icons-more"></div></div></div><div data-thread-key="2011/07/19/android-send-email-intro.html" data-title="Android中我为什么发不了邮件--Android邮件发送详解" data-url="http://www.flysnow.org/2011/07/19/android-send-email-intro.html" data-author-key="1" class="ds-thread"></div></div></div></div><div class="pure-u-1-4"><div id="sidebar"><div class="widget"><form action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="text" name="q" maxlength="20" placeholder="Search" class="search-form-input"/><input type="hidden" name="sitesearch" value="http://www.flysnow.org"/></form></div><div class="widget"><div class="widget-title">最新文章</div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2016/05/22/groovy-basis.html">Groovy基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/11/android-gradle-getting-started.html">Android Gradle 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/13/android-tech-docs-support-annotations.html">Android注解支持(Support Annotations)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/06/android-tech-docs-tools-attributes.html">Android技术文档翻译--工具属性(Tools Attributes)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/03/android-tech-docs-ant-tasks.html">android技术文档翻译--ant任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/manage-your-android-project-with-gradle.html">使用Gradle管理你的Android Studio工程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/19/android-process-application-init-databases-problem.html">Android多进程的数据库访问问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/10/github-page-with-hexo.html">使用Hexo在Github上搭建自己的博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-gradle-plugin-translate-done.html">Android Gradle插件中文指南</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/07/13/effective-programming-more-than-writing-code.html">高效能程序员的修炼</a></li></ul></div><div class="widget"><div class="comments-title">最近评论</div><div data-num-items="5" data-show-avatars="0" data-show-time="1" data-show-admin="0" data-excerpt-length="32" data-show-title="1" class="ds-recent-comments"></div></div><div class="widget"><div class="widget-title">分类</div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Android/Gradle/">Gradle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/Gradle/">Gradle</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hexo/">Hexo</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/软件开发/">软件开发</a></li></ul></div><div class="widget"><div class="widget-title">标签</div><div class="tagcloud"><a href="/tags/Ubuntu/" style="font-size: 15px;">Ubuntu</a><a href="/tags/Android/" style="font-size: 15px;">Android</a><a href="/tags/Ant/" style="font-size: 15px;">Ant</a><a href="/tags/数据库/" style="font-size: 15px;">数据库</a><a href="/tags/Hexo/" style="font-size: 15px;">Hexo</a><a href="/tags/Github/" style="font-size: 15px;">Github</a><a href="/tags/翻译/" style="font-size: 15px;">翻译</a><a href="/tags/软件开发/" style="font-size: 15px;">软件开发</a><a href="/tags/Apache/" style="font-size: 15px;">Apache</a><a href="/tags/Linux/" style="font-size: 15px;">Linux</a><a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a><a href="/tags/PHP/" style="font-size: 15px;">PHP</a><a href="/tags/Gradle/" style="font-size: 15px;">Gradle</a><a href="/tags/开源/" style="font-size: 15px;">开源</a><a href="/tags/Http/" style="font-size: 15px;">Http</a><a href="/tags/HttpClitent/" style="font-size: 15px;">HttpClitent</a><a href="/tags/API/" style="font-size: 15px;">API</a><a href="/tags/Widget/" style="font-size: 15px;">Widget</a><a href="/tags/goagent/" style="font-size: 15px;">goagent</a><a href="/tags/代理/" style="font-size: 15px;">代理</a><a href="/tags/翻墙/" style="font-size: 15px;">翻墙</a><a href="/tags/Email/" style="font-size: 15px;">Email</a><a href="/tags/敏捷/" style="font-size: 15px;">敏捷</a><a href="/tags/软件工程/" style="font-size: 15px;">软件工程</a><a href="/tags/Intent/" style="font-size: 15px;">Intent</a></div></div><div class="widget"><div class="widget-title">友情链接</div><ul></ul><a href="http://yuedu.baidu.com/ebook/14a722970740be1e640e9a3e" title="Android Gradle权威指南" target="_blank">Android Gradle权威指南</a></div></div></div></div><div id="footer">© <a href="/." rel="nofollow">飞雪无情的博客.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div><a id="rocket" href="#top" class="show"></a><script src="/js/jquery.min.js" type="text/javascript"></script>
+<script src="/js/totop.js" type="text/javascript"></script><script src="/js/fancybox.pack.js" type="text/javascript"></script>
+<script src="/js/jquery.fancybox.js" type="text/javascript"></script><link rel="stylesheet" href="/css/jquery.fancybox.css" type="text/css"><script>var duoshuoQuery = {short_name:'flysnow'};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-44570956-1','auto');ga('send','pageview');
+</script></div></body></html>

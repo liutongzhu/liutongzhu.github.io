@@ -1,0 +1,313 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Android 源码目录结构详解 | 飞雪无情的博客</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"><link rel="stylesheet" type="text/css" href="/css/pure-min.css"><link rel="stylesheet" type="text/css" href="/css/grids-responsive-min.css"><link rel="stylesheet" type="text/css" href="/css/style.css"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Android 源码目录结构详解</h1><a id="logo" href="/.">飞雪无情的博客</a><p class="description">专注于Android、Java、移动互联网、项目管理、软件架构</p></div><div id="nav-menu"><a href="/." class="current"><i class="icon-home"> 首页</i></a><a href="/books/"><i class="icon-history"> 新书</i></a><a href="/archives/"><i class="icon-archive"> 归档</i></a><a href="/about/"><i class="icon-about"> 关于</i></a><a href="/atom.xml"><i class="icon-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post post-page"><h1 class="post-title">Android 源码目录结构详解</h1><div class="post-meta">2011-01-10 | <span class="categories">分类于<a href="/categories/Android/"> Android</a></span></div><span data-thread-key="2011/01/10/android-sources-directory-structure.html" class="ds-thread-count"></span><div class="post-content"><p>这是Android2.1的源代码的目录结构，可以帮助我们研究Android的源代码。Android源代码的下载请参考官网</p>
+<p>Android 2.1<br>|— Makefile<br>|— bionic                        （bionic C库）</p>
+<p>|— bootable                （启动引导相关代码）<br>|— build<br>（存放系统编译规则及generic等基础开发包配置）<br>|— cts                        （Android兼容性测试套件标准）</p>
+<table>
+<thead>
+<tr>
+<th>— dalvik                        （dalvik JAVA虚拟机）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>development        （应用程序开发相关）<br>|— external<br>（android使用的一些开源的模组）<br>|— frameworks                （核心框架——java及C++语言）<br>|—<br>hardware                （部分厂家开源的硬解适配层HAL代码）<br>|— out<br>（编译完成后的代码输出与此目录）<br>|— packages                （应用程序包）<br>|—<br>prebuilt                （x86和arm架构下预编译的一些资源）<br>|— sdk<br>（sdk及模拟器）<br>|— system                        （底层文件系统库、应用及组件——C语言）<br>`—<br>vendor                （厂商定制代码）</p>
+<p>bionic 目录<br>|—<br>libc                        （C库）<br>|   |— arch-arm        （ARM架构，包含系统调用汇编实现）</p>
+<p>|   |— arch-x86        （x86架构，包含系统调用汇编实现）<br>|   |— bionic<br>（由C实现的功能，架构无关）<br>|   |— docs                （文档）<br>|   |—<br>include                （头文件）<br>|   |— inet                （？inet相关，具体作用不明）</p>
+<p>|   |— kernel                （Linux内核中的一些头文件）<br>|   |—<br>netbsd                （？nesbsd系统相关，具体作用不明）<br>|   |— private<br>（？一些私有的头文件）<br>|   |— stdio                （stdio实现）<br>|   |—<br>stdlib                （stdlib实现）<br>|   |— string                （string函数实现）</p>
+<p>|   |— tools                （几个工具）<br>|   |— tzcode<br>（时区相关代码）<br>|   |— unistd                （unistd实现）<br>|   `—<br>zoneinfo        （时区信息）<br>|— libdl<br>（libdl实现，dl是动态链接，提供访问动态链接库的功能）<br>|— libm                        （libm数学库的实现，）</p>
+<p>|   |— alpha                （apaha架构）<br>|   |— amd64<br>（amd64架构）<br>|   |— arm                （arm架构）<br>|   |—<br>bsdsrc                （？bsd的源码）<br>|   |— i386                （i386架构）<br>|<br>|— i387                （i387架构？）<br>|   |— ia64                （ia64架构）</p>
+<p>|   |— include                （头文件）<br>|   |— man<br>（数学函数，后缀名为.3，一些为freeBSD的库文件）<br>|   |— powerpc        （powerpc架构）<br>|   |—<br>sparc64                （sparc64架构）<br>|   <code>-- src                （源代码）
+|--
+libstdc++                （libstdc++ C++实现库）
+|   |-- include
+（头文件）
+|</code>— src                （源码）<br>|— libthread_db<br>（多线程程序的调试器库）<br>|   <code>-- include                （头文件）</code>—<br>linker                        （动态链接器）<br>`— arch<br>（支持arm和x86两种架构）</p>
+<p>bootable 目录<br>.<br>|—<br>bootloader                                （适合各种bootloader的通用代码）<br>|   <code>--
+legacy                                （估计不能直接使用，可以参考）
+|       |--
+arch_armv6                （V6架构，几个简单的汇编文件）
+|       |--
+arch_msm7k                （高通7k处理器架构的几个基本驱动）
+|       |--
+include                        （通用头文件和高通7k架构头文件）
+|       |--
+libboot                        （启动库，都写得很简单）
+|       |--
+libc                        （一些常用的c函数）
+|       |-- nandwrite
+（nandwirte函数实现）
+|</code>— usbloader                （usbloader实现）<br>|—<br>diskinstaller                        （android镜像打包器，x86可生产iso）<br><code>--
+recovery                                （系统恢复相关）
+|--
+edify                                （升级脚本使用的edify脚本语言）
+|--
+etc                                （init.rc恢复脚本）
+|--
+minui                                （一个简单的UI）
+|--
+minzip                                （一个简单的压缩工具）
+|--
+mtdutils                        （mtd工具）
+|--
+res                                （资源）
+|</code>—<br>images                        （一些图片）<br>|—<br>tools                                （工具）<br>|   <code>--
+ota                        （OTA Over The Air Updates升级工具）</code>—<br>updater                        （升级器）</p>
+<p>build目录<br>.<br>|—<br>core                                （核心编译规则）<br>|—<br>history                                （历史记录）<br>|—<br>libs<br>|   `— host<br>（主机端库，有android “cp”功能替换）<br>|— target                                （目标机编译对象）</p>
+<p>|   |— board                        （开发平台）<br>|   |   |— emulator<br>（模拟器）<br>|   |   |— generic                （通用）<br>|   |   |—<br>idea6410        （自己添加的）<br>|   |   <code>-- sim                （最简单）
+|</code>—<br>product                （开发平台对应的编译规则）<br>|       `— security        （密钥相关）</p>
+<p>`— tools                                （编译中主机使用的工具及脚本）<br>|—<br>acp                        （Android “acp” Command）<br>|—<br>apicheck                （api检查工具）<br>|— applypatch                （补丁工具）</p>
+<table>
+<thead>
+<tr>
+<th>— apriori                        （预链接工具）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>atree                        （tree工具）<br>|— bin2asm<br>（bin转换为asm工具）<br>|— check_prereq        （检查编译时间戳工具）<br>|—<br>dexpreopt                （模拟器相关工具，具体功能不明）<br>|— droiddoc<br>（？作用不明，java语言，网上有人说和JDK5有关）<br>|— fs_config                （This program<br>takes a list of files and directories）<br>|— fs_get_stats<br>（获取文件系统状态）<br>|— iself                        （判断是否ELF格式）<br>|—<br>isprelinked                （判断是否prelinked）<br>|—<br>kcm                        （按键相关）<br>|— lsd                        （List<br>symbol dependencies）<br>|— releasetools                （生成镜像的工具及脚本）</p>
+<table>
+<thead>
+<tr>
+<th>— rgb2565                （rgb转换为565）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>signapk                （apk签名工具）<br>|— soslim<br>（strip工具）<br>`— zipalign                （zip archive alignment tool）</p>
+<p>dalvik目录 dalvik虚拟机<br>.<br>|— dalvikvm<br>（main.c的目录）<br>|— dexdump                        （dex反汇编）<br>|—<br>dexlist                                （List all methods in all concrete classes<br>in a DEX file.）<br>|— dexopt                                （预验证与优化）<br>|—<br>docs                                （文档）<br>|—<br>dvz                                （和zygote相关的一个命令）<br>|—<br>dx                                （dx工具，将多个java转换为dex）<br>|—<br>hit                                （？java语言写成）<br>|—<br>libcore                                （核心库）<br>|—<br>libcore-disabled                （？禁用的库）<br>|—<br>libdex                                （dex的库）<br>|—<br>libnativehelper                （Support functions for Android’s class libraries）</p>
+<table>
+<thead>
+<tr>
+<th>— tests                                （测试代码）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>tools                                （工具）<br>`—<br>vm                                （虚拟机实现）</p>
+<p>development 目录<br>（开发者需要的一些例程及工具）<br>|— apps                                （一些核心应用程序）<br>|<br>|— BluetoothDebug        （蓝牙调试程序）<br>|   |— CustomLocale        （自定义区域设置）</p>
+<p>|   |— Development        （开发）<br>|   |— Fallback<br>（和语言相关的一个程序）<br>|   |— FontLab                （字库）<br>|   |—<br>GestureBuilder        （手势动作）<br>|   |— NinePatchLab        （？）<br>|   |—<br>OBJViewer                （OBJ查看器）<br>|   |— SdkSetup                （SDK安装器）</p>
+<p>|   |— SpareParts                （高级设置）<br>|   |—<br>Term                        （远程登录）<br>|   `— launchperf                （？）</p>
+<table>
+<thead>
+<tr>
+<th>— build                                （编译脚本模板）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>cmds                                （有个monkey工具）<br>|—<br>data                                （配置数据）<br>|—<br>docs                                （文档）<br>|—<br>host                                （主机端USB驱动等）<br>|—<br>ide                                （集成开发环境）<br>|—<br>ndk                                （本地开发套件——c语言开发套件）<br>|—<br>pdk                                （Plug Development Kit）<br>|—<br>samples                        （例程）<br>|   |— AliasActivity        （？）<br>|<br>|— ApiDemos                （API演示程序）<br>|   |— BluetoothChat        （蓝牙聊天）</p>
+<p>|   |— BrowserPlugin        （浏览器插件）<br>|   |— BusinessCard        （商业卡）</p>
+<p>|   |— Compass                （指南针）<br>|   |— ContactManager<br>（联系人管理器）<br>|   |— CubeLiveWallpaper        （动态壁纸的一个简单例程）<br>|   |—<br>FixedGridLayout        （像是布局）<br>|   |— GlobalTime                （全球时间）</p>
+<p>|   |— HelloActivity        （Hello）<br>|   |— Home<br>（Home）<br>|   |— JetBoy                        （jetBoy游戏）<br>|   |—<br>LunarLander        （貌似又是一个游戏）<br>|   |— MailSync                （邮件同步）<br>|<br>|— MultiResolution        （多分辨率）<br>|   |— MySampleRss        （RSS）<br>|<br>|— NotePad                （记事本）<br>|   |— RSSReader                （RSS阅读器）</p>
+<p>|   |— SearchableDictionary        （目录搜索）<br>|   |—<br>SimpleJNI                （JNI例程）<br>|   |— SkeletonApp        （空壳APP）<br>|<br>|— Snake                        （snake程序）<br>|   |— SoftKeyboard        （软键盘）</p>
+<p>|   |— Wiktionary                （？维基）<br>|   `— WiktionarySimple（？维基例程）</p>
+<table>
+<thead>
+<tr>
+<th>— scripts                                （脚本）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>sdk                                （sdk配置）<br>|—<br>simulator                        （？模拟器）<br>|—<br>testrunner                        （？测试用）<br>`—<br>tools                                （一些工具）</p>
+<p>external 目录<br>.<br>|—<br>aes                        （AES加密）<br>|— apache-http                （网页服务器）</p>
+<p>|— astl                        （ASTL (Android STL) is a slimmed-down<br>version of the regular C++ STL.）<br>|— bison<br>（自动生成语法分析器，将无关文法转换成C、C++）<br>|— blktrace                （blktrace is a block<br>layer IO tracing mechanism）<br>|— bluetooth                （蓝牙相关、协议栈）<br>|—<br>bsdiff                        （diff工具）<br>|— bzip2<br>（压缩工具）<br>|— clearsilver                （html模板系统）<br>|—<br>dbus                        （低延时、低开销、高可用性的IPC机制）<br>|— dhcpcd<br>（DHCP服务）<br>|— dosfstools                （DOS文件系统工具）<br>|—<br>dropbear                （SSH2的server）<br>|— e2fsprogs<br>（EXT2文件系统工具）<br>|— elfcopy                （复制ELF的工具）<br>|—<br>elfutils                        （ELF工具）<br>|— embunit                （Embedded<br>Unit Project）<br>|— emma                        （java代码覆盖率统计工具）<br>|—<br>esd                        （Enlightened Sound Daemon，将多种音频流混合在一个设备上播放）<br>|—<br>expat                        （Expat is a stream-oriented XML parser.）<br>|—<br>fdlibm                        （FDLIBM (Freely Distributable LIBM)）<br>|—<br>freetype                （字体）<br>|— fsck_msdos                （dos文件系统检查工具）</p>
+<table>
+<thead>
+<tr>
+<th>— gdata                        （google的无线数据相关）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>genext2fs                （genext2fs generates an ext2 filesystem as a normal<br>(non-root) user）<br>|— giflib                        （gif库）<br>|—<br>googleclient        （google用户库）<br>|— grub                        （This is GNU<br>GRUB, the GRand Unified Bootloader.）<br>|— gtest<br>（Google C++ Testing Framework）<br>|— icu4c<br>（ICU(International Component for Unicode)在C/C++下的版本）<br>|—<br>ipsec-tools                （This package provides a way to use the native IPsec<br>functionality ）<br>|— iptables                （防火墙）<br>|—<br>jdiff                        （generate a report describing the difference<br>between two public Java APIs.）<br>|— jhead                        （jpeg头部信息工具）</p>
+<p>|— jpeg                        （jpeg库）<br>|— junit<br>（JUnit是一个Java语言的单元测试框架）<br>|— kernel-headers        （内核的一些头文件）<br>|—<br>libffi                        （libffi is a foreign function interface library.）</p>
+<p>|— libpcap                （网络数据包捕获函数）<br>|— libpng<br>（png库）<br>|— libxml2                （xml解析库）<br>|—<br>mtpd                        （一个命令）<br>|— netcat                        （simple<br>Unix utility which reads and writes dataacross network connections）<br>|—<br>netperf                        （网络性能测量工具）<br>|— neven<br>（看代码和JNI相关）<br>|— opencore                （多媒体框架）<br>|—<br>openssl                （SSL加密相关）<br>|— openvpn                （VPN开源库）<br>|—<br>oprofile                （OProfile是Linux内核支持的一种性能分析机制。）<br>|—<br>ping                        （ping命令）<br>|— ppp<br>（pppd拨号命令，好像还没有chat）<br>|— proguard                （Java class file shrinker,<br>optimizer, obfuscator, and preverifier）<br>|— protobuf                （a<br>flexible, efficient, automated mechanism for serializing structured data）</p>
+<p>|— qemu                        （arm模拟器）<br>|— safe-iop<br>（functions for performing safe integer operations ）<br>|—<br>skia                        （skia图形引擎）<br>|— sonivox                （sole MIDI<br>solution for Google Android Mobile Phone Platform）<br>|—<br>speex                        （Speex编/解码API的使用(libspeex)）<br>|—<br>sqlite                        （数据库）<br>|— srec                        （Nuance<br>公司提供的开源连续非特定人语音识别）<br>|— strace                        （trace工具）<br>|—<br>svox                        （Embedded Text-to-Speech）<br>|—<br>tagsoup                （TagSoup是一个Java开发符合SAX的HTML解析器）<br>|—<br>tcpdump                （抓TCP包的软件）<br>|— tesseract                （Tesseract<br>Open Source OCR Engine.）<br>|— tinyxml                （TinyXml is a simple,<br>small, C++ XML parser）<br>|— tremor                        （I stream and file<br>decoder provides an embeddable,integer-only library）<br>|—<br>webkit                        （浏览器核心）<br>|— wpa_supplicant        （无线网卡管理）</p>
+<table>
+<thead>
+<tr>
+<th>— xmlwriter                （XML 编辑工具）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>yaffs2                        （yaffs文件系统）<br>`— zlib                        （a<br>general purpose data compression library）</p>
+<p>frameworks 目录<br>（核心框架——java及C++语言）<br>.<br>|— base                        （基本内容）<br>|   |—<br>api                  （？都是xml文件，定义了java的api？）<br>|   |— awt<br>（AWT库）<br>|   |— build                （空的）<br>|   |— camera<br>（摄像头服务程序库）<br>|   |— cmds              （重要命令：am、app_proce等）<br>|   |—<br>core                （核心库）<br>|   |— data                （字体和声音等数据文件）<br>|<br>|— docs                （文档）<br>|   |— graphics           （图形相关）<br>|   |—<br>include             （头文件）<br>|   |— keystore        （和数据签名证书相关）<br>|   |—<br>libs                （库）<br>|   |— location        （地区库）<br>|   |—<br>media                （媒体相关库）<br>|   |— obex                （蓝牙传输库）<br>|   |—<br>opengl                （2D-3D加速库）<br>|   |— packages        （设置、TTS、VPN程序）</p>
+<p>|   |— sax                （XML解析器）<br>|   |— services        （各种服务程序）</p>
+<p>|   |— telephony        （电话通讯管理）<br>|   |— test-runner        （测试工具相关）</p>
+<p>|   |— tests                （各种测试）<br>|   |— tools<br>（一些叫不上名的工具）<br>|   |— vpn                （VPN）<br>|   <code>-- wifi
+（无线网络）
+|-- opt                        （可选部分）
+|   |--
+com.google.android                                （有个framework.jar）
+|   |--
+com.google.android.googlelogin                （有个client.jar）
+|</code>—<br>emoji                （standard message elements）<br>`— policies<br>（Product policies are operating system directions aimed at specific uses）</p>
+<p>`— base<br>|— mid        （MID设备）</p>
+<p>`— phone   （手机类设备一般用这个，与锁屏有关的代码）</p>
+<p>hardware 目录<br>（部分厂家开源的硬解适配层HAL代码）<br>|— broadcom                        （博通公司）<br>|   <code>--
+wlan                        （无线网卡）
+|-- libhardware
+（硬件库）
+|   |-- include                        （头文件）
+|</code>—<br>modules                （Default (and possibly architecture dependents) HAL<br>modules）<br>|       |— gralloc                （gralloc显示相关）<br>|       `—<br>overlay                （Skeleton for the “overlay” HAL module.）<br>|—<br>libhardware_legacy        （旧的硬件库）<br>|   |— flashlight                （背光）</p>
+<p>|   |— gps                        （GPS）<br>|   |—<br>include                        （头文件）<br>|   |— mount<br>（旧的挂载器）<br>|   |— power                        （电源）<br>|   |—<br>qemu                        （模拟器）<br>|   |— qemu_tracing        （模拟器跟踪）</p>
+<p>|   |— tests                        （测试）<br>|   |—<br>uevent                        （uevent）<br>|   |—<br>vibrator                        （震动）<br>|   `— wifi<br>（无线）<br>|— msm7k                        （高通7k处理器开源抽象层）<br>|   |—<br>boot                        （启动）<br>|   |— libaudio                （声音库）</p>
+<p>|   |— libaudio-qsd8k        （qsd8k的声音相关库）<br>|   |—<br>libcamera                （摄像头库）<br>|   |— libcopybit                （copybit库）</p>
+<p>|   |— libgralloc                （gralloc库）<br>|   |—<br>libgralloc-qsd8k        （qsd8k的gralloc库）<br>|   |— liblights<br>（背光库）<br>|   <code>-- librpc                        （RPC库）
+|--
+ril                                （无线电抽象层）
+|   |--
+include                        （头文件）
+|   |-- libril
+（库）
+|   |-- reference-cdma-sms        （cdma短信参考）
+|   |--
+reference-ril                        （ril参考）
+|</code>—<br>rild                                （ril后台服务程序）<br><code>--
+ti                                                （ti公司开源HAL）
+|--
+omap3                                （omap3处理器）
+|   |--
+dspbridge                （DSP桥）
+|   |-- libopencorehw
+（opencore硬件库）
+|   |-- liboverlay                （overlay硬件库）
+|
+|-- libstagefrighthw        （stagefright硬件库）
+|</code>—<br>omx                        （omx组件）<br>`—<br>wlan                                （无线网卡）</p>
+<p>packages 目录<br>.<br>|—<br>apps                            （应用程序库）<br>|   |— AlarmClock              （闹钟）</p>
+<p>|   |— Bluetooth                （蓝牙）<br>|   |— Browser<br>（浏览器）<br>|   |— Calculator                （计算器）<br>|   |—<br>Calendar                  （日历）<br>|   |— Camera                   （相机）<br>|<br>|— CertInstaller             （在Android中安装数字签名，被调用）<br>|   |—<br>Contacts                 （拨号(调用)、联系人、通话记录）<br>|   |— DeskClock<br>（桌面时钟）<br>|   |— Email                       （Email）<br>|   |—<br>Gallery                     （相册，和Camera类似，多了列表）<br>|   |—<br>Gallery3D                 （？3D相册）<br>|   |— GlobalSearch<br>（为google搜索服务，提供底层应用）<br>|   |— GoogleSearch           （google搜索）<br>|   |—<br>HTMLViewer             （浏览器附属界面，被浏览器应用调用，同时提供存储记录功能）<br>|   |—<br>IM                            （即时通讯，为手机提供信号发送、接收、通信的服务）<br>|   |—<br>Launcher                  （登陆启动项，显示图片框架等等图形界面）<br>|   |—<br>Launcher2                （登陆启动项，负责应用的调用）<br>|   |— Mms<br>（？彩信业务）<br>|   |— Music                        （音乐播放器）<br>|   |—<br>PackageInstaller        （安装、卸载程序的响应）<br>|   |— Phone<br>（电话拨号程序）<br>|   |— Provision                （预设应用的状态，使能应用）<br>|   |—<br>Settings                （开机设定，包括电量、蓝牙、设备信息、界面、wifi等）<br>|   |—<br>SoundRecorder        （录音机，可计算存储所需空间和时间）<br>|   |— Stk<br>（接收和发送短信）<br>|   |— Sync                        （空）   ———-○1<br>|   |—<br>Updater                （空）<br>|   `— VoiceDialer                （语音识别通话）</p>
+<p>|— inputmethods                （输入法）<br>|   |— LatinIME<br>（拉丁文输入法）<br>|   |— OpenWnn                （OpenWnn输入法）<br>|   <code>--
+PinyinIME                （拼音输入法）
+|-- providers
+（提供器，提供应用程序、界面所需的数据）
+|   |-- ApplicationsProvider
+（应用程序提供器，提供应用程序启动项、更新等）
+|   |-- CalendarProvider
+（日历提供器）
+|   |-- ContactsProvider                        （联系人提供器）
+|   |--
+DownloadProvider                （下载管理提供器）
+|   |--
+DrmProvider                        （创建和更新数据库时调用）
+|   |--
+GoogleContactsProvider        （联系人提供器的子类，用以同步联系人）
+|   |--
+GoogleSubscribedFeedsProvider（设置信息提供器）
+|   |--
+ImProvider                                （空）
+|   |--
+ManagementProvider                （空）
+|   |--
+MediaProvider                        （媒体提供器，提供存储数据）
+|   |--
+TelephonyProvider                （彩信提供器）
+|   |--
+UserDictionaryProvider        （用户字典提供器，提供用户常用字字典）
+|</code>—<br>WebSearchProvider                （空）<br>|—<br>services<br>|   |—<br>EasService                                （空）<br>|   <code>--
+LockAndWipe                        （空）</code>—<br>wallpapers                                        （墙纸）<br>|—<br>Basic                                        （基本墙纸，系统内置墙纸）<br>|—<br>LivePicker                                （选择动态壁纸）<br>|—<br>MagicSmoke                        （壁纸特殊效果）<br>`—<br>MusicVisualization                （音乐可视化，图形随音乐而变化）</p>
+<p>○1里面有一个隐藏的.git文件夹，内容都是一样的，没有有意义的代码，config看似乎是一个下载程序，因此认为这些文件夹下没有实质东西。</p>
+<p>prebuilt 目录                        （x86和arm架构下预编译的一些资源）<br>.<br>|—<br>android-arm                （arm-android相关）<br>|   |— gdbserver<br>（gdb调试器）<br>|   <code>-- kernel                        （模拟的arm内核）
+|--
+android-x86                （x86-android相关）
+|</code>—<br>kernel                        （空的）<br>|— common<br>（通用编译好的代码，应该是java的）<br>|— darwin-x86                        （drawin x86平台）</p>
+<p>|   `— toolchain                （工具链）<br>|       |— arm-eabi-4.2.1</p>
+<p>|       |— arm-eabi-4.3.1<br>|       `— arm-eabi-4.4.0</p>
+<table>
+<thead>
+<tr>
+<th>— darwin-x86_64                （drawin x86 64bit平台）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>linux-x86                        （linux x86平台）<br>|   `—<br>toolchain                （工具链，我们应该主要用这个）<br>|       |— arm-eabi-4.2.1</p>
+<p>|       |— arm-eabi-4.3.1<br>|       |— arm-eabi-4.4.0</p>
+<table>
+<thead>
+<tr>
+<th>`— i686-unknown-linux-gnu-4.2.1        （x86版编译器）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>linux-x86_64                （linux x86 64bit平台）<br>|—<br>windows                        （windows平台）<br>`— windows-x86_64        （64bit<br>windows平台）<br>system 目录                （底层文件系统库、应用及组件——C语言）<br>.<br>|—<br>Bluetooth                （蓝牙相关）<br>|— core                        （系统核心工具盒接口）</p>
+<p>|   |— adb                （adb调试工具）<br>|   |— cpio<br>（cpio工具，创建img）<br>|   |— debuggerd        （调试工具）<br>|   |— fastboot<br>（快速启动相关）<br>|   |— include                （系统接口头文件）<br>|   |—<br>init                （init程序源代码）<br>|   |— libacc                （轻量级C编译器）</p>
+<p>|   |— libctest                （libc测试相关）<br>|   |— libcutils<br>（libc工具）<br>|   |— liblog                （log库）<br>|   |— libmincrypt<br>（加密库）<br>|   |— libnetutils        （网络工具库）<br>|   |— libpixelflinger<br>（图形处理库）<br>|   |— libsysutils        （系统工具库）<br>|   |— libzipfile<br>（zip库）<br>|   |— logcat                （查看log工具）<br>|   |— logwrapper<br>（log封装工具）<br>|   |— mkbootimg        （制作启动boot.img的工具盒脚本）<br>|   |—<br>netcfg                （网络配置netcfg源码）<br>|   |— nexus<br>（google最新手机的代码）<br>|   |— rootdir                （rootfs，包含一些etc下的脚本和配置）</p>
+<p>|   |— sh                        （shell代码）<br>|   |—<br>toolbox                （toolbox，类似busybox的工具集）<br>|   `— vold<br>（SD卡管理器）<br>|— extras                        （额外工具）<br>|   |—<br>latencytop        （a tool for software developers ，identifying system latency<br>happen）<br>|   |— libpagemap        （pagemap库）<br>|   |—<br>librank                （Java Library Ranking System库）<br>|   |— procmem<br>（pagemap相关）<br>|   |— procrank        （Java Library Ranking System相关）<br>|<br>|— showmap        （showmap工具）<br>|   |— showslab        （showslab工具）<br>|<br>|— sound                （声音相关）<br>|   |— su                        （su命令源码）</p>
+<p>|   |— tests                （一些测试工具）<br>|   `— timeinfo        （时区相关）</p>
+<p><code>-- wlan                        （无线相关）</code>— ti<br>（ti网卡相关工具及库）</p>
+<p>vendor 目录                        （厂家定制内容）</p>
+<p>|—<br>aosp                             （android open source project）<br>|   <code>--
+products                  （一些板级规则）
+|-- htc
+（HTC公司）
+|   |-- common-open         （通用部分）
+|   |</code>—<br>akmd                 （解压img用的工具）<br>|   |— dream-open            （G1开放部分）</p>
+<p>|   |— prebuilt-open           （预编译开放部分）<br>|   <code>-- sapphire-open
+（sapphire这款型号开放内容）
+|-- pv-open                       （没东西）
+|--
+qcom                           （里面基本是空的）</code>— sample<br>（google提供的样例）<br>|— apps                        （应用）<br>|   |—<br>client                   （用户）<br>|   `— upgrade              （升级）</p>
+<p>|— frameworks             （框架）<br>|   `— PlatformLibrary   （平台库）</p>
+<p>|— products                  （产品）<br>|— sdk_addon              （sdk添加部分）</p>
+<p>`— skins                       （皮肤）</p>
+<p>`— WVGAMedDpi      （WVGA适用的图片）</p>
+</div><div class="tags"><a href="/tags/Android/">Android</a><a href="/tags/Linux/">Linux</a></div><div class="post-nav"><a href="/2011/01/20/android-gridview-tutorial.html" class="pre"><i class="icon-previous">Android GridView组件的使用</i></a><a href="/2011/01/08/android-listview-tutorials.html" class="next">Android ListView组件的使用<i class="icon-next"></i></a></div><div data-thread-key="2011/01/10/android-sources-directory-structure.html" data-title="Android 源码目录结构详解" data-url="http://www.flysnow.org/2011/01/10/android-sources-directory-structure.html" class="ds-share flat"><div class="ds-share-inline"><ul class="ds-share-icons-16"><li data-toggle="ds-share-icons-more"><a href="javascript:void(0);" class="ds-more">分享到：</a></li><li><a href="javascript:void(0);" data-service="weibo" class="ds-weibo">微博</a></li><li><a href="javascript:void(0);" data-service="qzone" class="ds-qzone">QQ空间</a></li><li><a href="javascript:void(0);" data-service="qqt" class="ds-qqt">腾讯微博</a></li><li><a href="javascript:void(0);" data-service="wechat" class="ds-wechat">微信</a></li></ul><div class="ds-share-icons-more"></div></div></div><div data-thread-key="2011/01/10/android-sources-directory-structure.html" data-title="Android 源码目录结构详解" data-url="http://www.flysnow.org/2011/01/10/android-sources-directory-structure.html" data-author-key="1" class="ds-thread"></div></div></div></div><div class="pure-u-1-4"><div id="sidebar"><div class="widget"><form action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="text" name="q" maxlength="20" placeholder="Search" class="search-form-input"/><input type="hidden" name="sitesearch" value="http://www.flysnow.org"/></form></div><div class="widget"><div class="widget-title">最新文章</div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2016/05/22/groovy-basis.html">Groovy基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/11/android-gradle-getting-started.html">Android Gradle 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/13/android-tech-docs-support-annotations.html">Android注解支持(Support Annotations)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/06/android-tech-docs-tools-attributes.html">Android技术文档翻译--工具属性(Tools Attributes)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/03/android-tech-docs-ant-tasks.html">android技术文档翻译--ant任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/manage-your-android-project-with-gradle.html">使用Gradle管理你的Android Studio工程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/19/android-process-application-init-databases-problem.html">Android多进程的数据库访问问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/10/github-page-with-hexo.html">使用Hexo在Github上搭建自己的博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-gradle-plugin-translate-done.html">Android Gradle插件中文指南</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/07/13/effective-programming-more-than-writing-code.html">高效能程序员的修炼</a></li></ul></div><div class="widget"><div class="comments-title">最近评论</div><div data-num-items="5" data-show-avatars="0" data-show-time="1" data-show-admin="0" data-excerpt-length="32" data-show-title="1" class="ds-recent-comments"></div></div><div class="widget"><div class="widget-title">分类</div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Android/">Android</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Android/Gradle/">Gradle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Android/Gradle/">Gradle</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hexo/">Hexo</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/软件开发/">软件开发</a></li></ul></div><div class="widget"><div class="widget-title">标签</div><div class="tagcloud"><a href="/tags/Ubuntu/" style="font-size: 15px;">Ubuntu</a><a href="/tags/Android/" style="font-size: 15px;">Android</a><a href="/tags/Ant/" style="font-size: 15px;">Ant</a><a href="/tags/数据库/" style="font-size: 15px;">数据库</a><a href="/tags/Hexo/" style="font-size: 15px;">Hexo</a><a href="/tags/Github/" style="font-size: 15px;">Github</a><a href="/tags/翻译/" style="font-size: 15px;">翻译</a><a href="/tags/软件开发/" style="font-size: 15px;">软件开发</a><a href="/tags/Apache/" style="font-size: 15px;">Apache</a><a href="/tags/Linux/" style="font-size: 15px;">Linux</a><a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a><a href="/tags/PHP/" style="font-size: 15px;">PHP</a><a href="/tags/Gradle/" style="font-size: 15px;">Gradle</a><a href="/tags/开源/" style="font-size: 15px;">开源</a><a href="/tags/Http/" style="font-size: 15px;">Http</a><a href="/tags/HttpClitent/" style="font-size: 15px;">HttpClitent</a><a href="/tags/API/" style="font-size: 15px;">API</a><a href="/tags/Widget/" style="font-size: 15px;">Widget</a><a href="/tags/goagent/" style="font-size: 15px;">goagent</a><a href="/tags/代理/" style="font-size: 15px;">代理</a><a href="/tags/翻墙/" style="font-size: 15px;">翻墙</a><a href="/tags/Email/" style="font-size: 15px;">Email</a><a href="/tags/敏捷/" style="font-size: 15px;">敏捷</a><a href="/tags/软件工程/" style="font-size: 15px;">软件工程</a><a href="/tags/Intent/" style="font-size: 15px;">Intent</a></div></div><div class="widget"><div class="widget-title">友情链接</div><ul></ul><a href="http://yuedu.baidu.com/ebook/14a722970740be1e640e9a3e" title="Android Gradle权威指南" target="_blank">Android Gradle权威指南</a></div></div></div></div><div id="footer">© <a href="/." rel="nofollow">飞雪无情的博客.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div><a id="rocket" href="#top" class="show"></a><script src="/js/jquery.min.js" type="text/javascript"></script>
+<script src="/js/totop.js" type="text/javascript"></script><script src="/js/fancybox.pack.js" type="text/javascript"></script>
+<script src="/js/jquery.fancybox.js" type="text/javascript"></script><link rel="stylesheet" href="/css/jquery.fancybox.css" type="text/css"><script>var duoshuoQuery = {short_name:'flysnow'};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-44570956-1','auto');ga('send','pageview');
+</script></div></body></html>
